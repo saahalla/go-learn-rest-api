@@ -4,6 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+    "log"
+    "os"
+	"fmt"
 )
 
 func main() {
@@ -11,6 +15,11 @@ func main() {
 	router.GET("/albums", getAlbums)
 	router.POST("/albums", postAlbums)
 	router.GET("/albums/:id", getAlbumByID)
+	router.GET("/", func(c *gin.Context) {
+		var host string = Config("HOST")
+		fmt.Println(host)
+		c.IndentedJSON(http.StatusOK, host)
+	})
 
 	router.Run("localhost:8080")
 }
@@ -64,4 +73,15 @@ func getAlbumByID(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusNotFound, gin.H{"error": "Album Not found"})
+}
+
+// Config func to get .env data
+func Config(key string) string {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Some Error Occured %s", err)
+	}
+
+	val := os.Getenv(key)
+	return val
 }
